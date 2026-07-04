@@ -1,0 +1,20 @@
+# ~/workshops/aiweekend/harness/fix_loop.yaml — ограничители авто-починки (~/workshops/aiweekend/harness/agents/fix-loop.md)
+fix_loop:
+  max_iterations: 5
+  wall_clock_s:   600
+  cost_budget_usd: 2.00
+
+  # НЕизменяемо агентом (человек владеет спекой/harness/порогами/eval):
+  immutable_paths: ["~/workshops/aiweekend/harness/**", "~/workshops/aiweekend/harness/agents/**", "~/workshops/aiweekend/harness/evals/**", "**/thresholds.yaml", "**/*.schema.json"]
+
+  # Тесты (все языковые конвенции): существующие агент НЕ правит (иначе выхолостит),
+  # но МОЖЕТ СОЗДАВАТЬ новые по шаблону — это его обязанность из test-matrix.md (T1).
+  tests_glob: ["**/*_test.go", "**/test_*.py", "**/*_test.py", "**/*Test.java", "**/*.spec.*", "**/tests/**"]
+  tests_policy: create_new_ok__modify_existing_forbidden   # снимает противоречие T1↔protected
+
+  invariants:
+    - green_count_non_decreasing        # число зелёных тестов не упало
+    - coverage_hot_paths_non_decreasing # покрытие критичных путей не упало
+    - mutation_score_non_decreasing     # тесты не выхолощены
+    - no_new_skips_or_xfails            # нет новых skip/xfail
+  on_exhausted: escalate_to_human       # не «ещё итерация»

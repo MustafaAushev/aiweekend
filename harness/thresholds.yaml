@@ -1,0 +1,24 @@
+# ~/workshops/aiweekend/harness/thresholds.yaml — пороги harness (значения-ПРИМЕРЫ, калибруются под ваш SLO)
+# Все правила agents/*.md читают пороги ОТСЮДА. Менять — через PR (человек владеет).
+# Калибровка: замерь текущий p99/error-rate прод → поставь порог с запасом.
+
+resilience:
+  timeout_ms:      { default: 2000, prod: 1500 }   # ≤ latency-бюджет (p99–p99.9 зависимости)
+  retry_max:       { default: 3 }                    # exp backoff + jitter; только сетевые/5xx/429
+  cb_fail_ratio:   { default: 0.5, window_s: 10, open_s: 30 }  # circuit breaker
+
+performance:
+  hot_p99_ms:      { default: 300, prod: 200 }       # из SLA
+  # asymptote: мерить НАКЛОН log-log (показатель степени ~1 линейно OK, ~2 квадратично FAIL),
+  # НЕ абсолютный ratio — иначе честно-линейный по датасету эндпоинт (×100 данных → ~×100 latency)
+  # ложно провалится. Горячий путь обязан быть paginated (bounded working set), тогда рост ≈ константа.
+  asymptote_slope_max: { default: 1.3 }   # степень роста p99 по объёму (1=линейно, 2=квадратично)
+  max_sql_per_req: { default: 5 }    # детект N+1 по числу запросов
+
+quality:
+  mutation_score:  { default: 0.80 }  # killed/total мутантов
+  flaky_max_rate:  { default: 0.05 }  # для LLM-тестов (K прогонов)
+
+llm:
+  max_output_tokens: { default: 1024 }
+  cost_budget_usd:   { default: 5.00 }   # на eval-прогон датасета

@@ -62,6 +62,32 @@ def test_explicit_ec_level_echoed(base):
     assert obj["error_correction"] == "H"
 
 
+def test_border_defaults_to_4(base):
+    status, body = _post(base, {"data": "hello"})
+    assert status == 201
+    obj = json.loads(body)
+    assert obj["border"] == 4  # spec default
+
+
+@pytest.mark.parametrize("border", [0, 10, 40])
+def test_border_explicit_echoed(base, border):
+    status, body = _post(base, {"data": "hello", "border": border})
+    assert status == 201
+    obj = json.loads(body)
+    assert obj["border"] == border
+
+
+@pytest.mark.parametrize("border", [-1, 41])
+def test_border_out_of_range_422(base, border):
+    status, _ = _post(base, {"data": "hello", "border": border})
+    assert status == 422
+
+
+def test_border_non_integer_422(base):
+    status, _ = _post(base, {"data": "hello", "border": "4"})
+    assert status == 422
+
+
 def test_capacity_overflow_returns_422(base):
     # V40-H cap is 1228; send 2000 bytes (within spec maxLength 2953).
     status, _ = _post(base, {"data": "a" * 2000, "error_correction": "H"})

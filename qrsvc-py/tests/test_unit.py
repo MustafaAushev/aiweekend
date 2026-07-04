@@ -1,5 +1,6 @@
 # Unit tests: pure algorithm + payload validation, against openapi.yaml spec.
 import pytest
+from hypothesis import given, settings, strategies as st
 
 from qrsvc.qr_capacity import (
     EC_LEVELS,
@@ -8,7 +9,7 @@ from qrsvc.qr_capacity import (
     capacity,
     select_version,
 )
-from qrsvc.app import validate_payload, select_qr_version, QrError
+from qrsvc.app import validate_payload, select_qr_version, handle_create_qr, QrError
 
 from tests._http import load_spec
 
@@ -71,11 +72,20 @@ def test_spec_ec_enum_matches_table():
     assert set(REQ_SCHEMA["properties"]["error_correction"]["enum"]) == set(EC_LEVELS)
 
 
+def test_spec_border_bounds_and_default():
+    border = REQ_SCHEMA["properties"]["border"]
+    assert border["type"] == "integer"
+    assert border["minimum"] == 0
+    assert border["maximum"] == 40
+    assert border["default"] == 4
+
+
 def test_response_shape_strict():
-    # additionalProperties false + exactly four required fields.
+    # additionalProperties false + exactly five required fields.
+    required = {"qr_id", "error_correction", "qr_size", "image_url", "border"}
     assert RESP_SCHEMA["additionalProperties"] is False
-    assert set(RESP_SCHEMA["required"]) == {"qr_id", "error_correction", "qr_size", "image_url"}
-    assert set(RESP_SCHEMA["properties"].keys()) == {"qr_id", "error_correction", "qr_size", "image_url"}
+    assert set(RESP_SCHEMA["required"]) == required
+    assert set(RESP_SCHEMA["properties"].keys()) == required
 
 
 # --- payload validation (pure) ---
@@ -119,6 +129,39 @@ def test_validate_rejects_oversize_data():
     assert err is not None and err.status == 422
 
 
+# --- border (quiet zone) validation ---
+
+
+def test_validate_border_defaults_to_4():
+    p, err = validate_payload({"data": "hello"})
+    assert err is None
+    assert p["border"] == 4  # spec default
+
+
+@pytest.mark.parametrize("border", [0, 4, 10, 40])
+def test_validate_border_within_bounds_accepted(border):
+    p, err = validate_payload({"data": "hello", "border": border})
+    assert err is None
+    assert p["border"] == border
+
+
+@pytest.mark.parametrize("border", [-1, 41, 100])
+def test_validate_rejects_border_out_of_range(border):
+    p, err = validate_payload({"data": "hello", "border": border})
+    assert err is not None and err.status == 422
+
+
+def test_validate_rejects_non_integer_border():
+    p, err = validate_payload({"data": "hello", "border": "4"})
+    assert err is not None and err.status == 422
+
+
+def test_validate_rejects_bool_border():
+    # bool is a subclass of int in Python — must not be accepted as integer.
+    p, err = validate_payload({"data": "hello", "border": True})
+    assert err is not None and err.status == 422
+
+
 # --- end-to-end version selection business rule ---
 
 
@@ -139,3 +182,22 @@ def test_select_qr_version_h_overflow_within_maxlength():
     # 2000 chars fits in V40-L but overflows H (cap 1228) -> 422 per spec.
     err = select_qr_version("a" * 2000, "H")
     assert isinstance(err, QrError) and err.status == 422
+
+
+# --- property-based: нерушимый инвариант error_correction ---
+# "возвращённый error_correction равен запрошенному ИЛИ ответ 422"
+# (никогда не тихая подмена уровня коррекции и никогда не падение с иным кодом).
+
+
+@settings(max_examples=1000)
+@given(
+    data=st.text(max_size=3500),
+    ec=st.sampled_from(EC_LEVELS),
+)
+def test_property_error_correction_echoed_or_422(data, ec):
+    status, body = handle_create_qr({"data": data, "error_correction": ec})
+    assert status in (201, 422)
+    if status == 201:
+        assert body["error_correction"] == ec
+    else:
+        assert "error" in body

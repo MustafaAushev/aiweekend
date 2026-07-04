@@ -11,7 +11,9 @@ def test_e2e_smoke_happy_path():
         status, raw = post_json(base, "/api/v1/qr", {"data": "https://example.com"})
         assert status == 201
         obj = json.loads(raw)
-        assert set(obj.keys()) == {"qr_id", "error_correction", "qr_size", "image_url"}
+        assert set(obj.keys()) == {
+            "qr_id", "error_correction", "qr_size", "image_url", "border",
+        }
         # qr_id looks like a uuid v4
         assert re.match(
             r"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
@@ -22,6 +24,7 @@ def test_e2e_smoke_happy_path():
         assert obj["qr_size"] == 2
         assert obj["image_url"].startswith("placeholder://")
         assert obj["qr_id"] in obj["image_url"]
+        assert obj["border"] == 4  # spec default
 
 
 def test_e2e_smoke_overflow_422():

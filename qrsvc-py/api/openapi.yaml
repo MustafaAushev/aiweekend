@@ -15,6 +15,7 @@ paths:
               properties:
                 data: {type: string, minLength: 1, maxLength: 2953}
                 error_correction: {type: string, enum: [L, M, Q, H], default: M}
+                border: {type: integer, minimum: 0, maximum: 40, default: 4}
       responses:
         "201":
           description: QR created
@@ -23,11 +24,12 @@ paths:
               schema:
                 type: object
                 additionalProperties: false
-                required: [qr_id, error_correction, qr_size, image_url]
+                required: [qr_id, error_correction, qr_size, image_url, border]
                 properties:
                   qr_id: {type: string}
                   error_correction: {type: string, enum: [L, M, Q, H]}
                   qr_size: {type: integer}
                   image_url: {type: string}
+                  border: {type: integer, minimum: 0, maximum: 40}
         "422":
           description: Payload does not fit selected version/EC level

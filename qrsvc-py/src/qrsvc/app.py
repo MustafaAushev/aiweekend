@@ -6,7 +6,11 @@ import uuid
 from .qr_capacity import EC_LEVELS, MAX_DATA_BYTES, select_version
 
 # Allowed response shape — enforced by spec (additionalProperties: false).
-_RESPONSE_KEYS = ("qr_id", "error_correction", "qr_size", "image_url")
+_RESPONSE_KEYS = ("qr_id", "error_correction", "qr_size", "image_url", "border")
+
+BORDER_MIN = 0
+BORDER_MAX = 40
+BORDER_DEFAULT = 4
 
 
 class QrError(Exception):
@@ -27,7 +31,7 @@ def validate_payload(payload) -> tuple[dict | None, QrError | None]:
         return None, QrError("request body must be a JSON object")
 
     # additionalProperties: false
-    allowed = {"data", "error_correction"}
+    allowed = {"data", "error_correction", "border"}
     extras = payload.keys() - allowed
     if extras:
         return None, QrError(f"unknown properties: {sorted(extras)}")
@@ -54,7 +58,19 @@ def validate_payload(payload) -> tuple[dict | None, QrError | None]:
             f"'error_correction' must be one of {list(EC_LEVELS)}"
         )
 
-    return {"data": data, "error_correction": ec, "_byte_len": byte_len}, None
+    # border: optional integer quiet zone, minimum 0, maximum 40, default 4
+    border = payload.get("border", BORDER_DEFAULT)
+    if isinstance(border, bool) or not isinstance(border, int):
+        return None, QrError("'border' must be an integer")
+    if border < BORDER_MIN or border > BORDER_MAX:
+        return None, QrError(
+            f"'border' must be between {BORDER_MIN} and {BORDER_MAX}"
+        )
+
+    return (
+        {"data": data, "error_correction": ec, "border": border, "_byte_len": byte_len},
+        None,
+    )
 
 
 def select_qr_version(data: str, ec_level: str):
@@ -68,13 +84,14 @@ def select_qr_version(data: str, ec_level: str):
     return version
 
 
-def build_response(qr_id: str, ec_level: str, version: int) -> dict:
+def build_response(qr_id: str, ec_level: str, version: int, border: int) -> dict:
     image_url = f"placeholder://{qr_id}.png"
     return {
         "qr_id": qr_id,
         "error_correction": ec_level,
         "qr_size": version,
         "image_url": image_url,
+        "border": border,
     }
 
 
@@ -92,7 +109,7 @@ def handle_create_qr(payload) -> tuple[int, dict]:
         return version_or_err.status, {"error": version_or_err.message}
 
     qr_id = str(uuid.uuid4())
-    body = build_response(qr_id, clean["error_correction"], version_or_err)
+    body = build_response(qr_id, clean["error_correction"], version_or_err, clean["border"])
     # enforce spec shape strictly (defensive; tests rely on this)
     assert set(body.keys()) == set(_RESPONSE_KEYS)
     return 201, body

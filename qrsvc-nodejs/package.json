@@ -1,0 +1,40 @@
+{
+  "name": "qrsvc-nodejs",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "lint": "eslint src/ --max-warnings 0 && prettier --check src/ e2e/ tests/",
+    "lint:fix": "eslint src/ --fix && prettier --write src/ e2e/ tests/",
+    "typecheck": "tsc --noEmit --strict",
+    "build": "tsc",
+    "start": "tsx src/index.ts",
+    "test": "vitest run --reporter=verbose --coverage",
+    "test:unit": "vitest run --reporter=verbose src/**/*.test.ts",
+    "test:e2e": "vitest run --reporter=verbose --test-timeout=30000 e2e/**/*.test.ts",
+    "test:all": "vitest run --reporter=verbose --coverage --test-timeout=30000"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "fastify": "^5.10.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "@types/node": "^26.1.0",
+    "@typescript-eslint/eslint-plugin": "^8.62.1",
+    "@typescript-eslint/parser": "^8.62.1",
+    "@vitest/coverage-v8": "^4.1.9",
+    "eslint": "^9.39.4",
+    "eslint-config-prettier": "^10.1.8",
+    "fast-check": "^4.8.0",
+    "prettier": "^3.9.4",
+    "tsx": "^4.23.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.62.1",
+    "vitest": "^4.1.9"
+  }
+}

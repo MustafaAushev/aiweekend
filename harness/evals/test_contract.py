@@ -13,23 +13,18 @@ RESPONSE_SCHEMA = {
     "additionalProperties": False,   # прокравшееся поле (userId) = diff пойман
 }
 
-
 def serialize_ok(u_id):        # корректная реализация
     return {"user_id": u_id}
-
 
 def serialize_renamed(u_id):   # агент «причесал» — сломал контракт
     return {"userId": u_id}
 
-
 def test_valid_passes():
     validate(serialize_ok(42), RESPONSE_SCHEMA)   # не бросает
-
 
 def test_renamed_field_rejected():
     with pytest.raises(ValidationError):           # старый unit это пропускал
         validate(serialize_renamed(42), RESPONSE_SCHEMA)
-
 
 def test_missing_field_rejected():
     with pytest.raises(ValidationError):

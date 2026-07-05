@@ -4,14 +4,12 @@
 import ipaddress
 import pytest
 
-
 def _ip_blocked(ip: str) -> bool:
     a = ipaddress.ip_address(ip)
     if a.version == 6 and a.ipv4_mapped:
         a = a.ipv4_mapped
     return (a.is_private or a.is_loopback or a.is_link_local
             or a.is_reserved or a.is_multicast or a.is_unspecified)
-
 
 @pytest.mark.parametrize("ip", [
     "169.254.169.254",  # cloud-metadata (link-local)
@@ -24,11 +22,9 @@ def _ip_blocked(ip: str) -> bool:
 def test_dangerous_ip_blocked(ip):
     assert _ip_blocked(ip), f"{ip} должен быть заблокирован (SSRF)"
 
-
 @pytest.mark.parametrize("ip", ["93.184.216.34", "8.8.8.8", "1.1.1.1"])
 def test_public_ip_allowed(ip):
     assert not _ip_blocked(ip), f"{ip} — публичный, не должен блокироваться"
-
 
 @pytest.mark.parametrize("scheme", ["file", "gopher", "ftp"])
 def test_non_http_scheme_rejected(scheme):

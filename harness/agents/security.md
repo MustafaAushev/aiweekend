@@ -7,7 +7,7 @@
 **Eval:** фаззинг + malicious corpus (переполнение, unicode, `null`-байты) → `400/422`, не `500`, не креш.
 
 ## S2. Секреты — не в коде/логах/промпте
-Только из env/секрет-стора (Vault/SM); логгер маскирует; секреты не попадают в LLM-payload.
+Только из env/секрет-стора (Vault/SM); логгер маскирует; секреты не попадают в LLM-payload. Профиль: типизированный секрет-тип, не голый `os.getenv` (Python `pydantic-settings` + `SecretStr` с `get_secret_value()`, Go — секрет через конфиг-загрузчик), fail-fast при отсутствии на старте.
 **Eval:** `gitleaks`/`trufflehog` в CI = 0; тест маскирования; grep промпт-сборщика.
 
 ## S3. Authz/authn — deny-by-default, object-level
@@ -35,8 +35,8 @@ def _ip_blocked(ip: str) -> bool:
 **Eval:** `http://169.254.169.254/`, `http://localhost`, `file:///etc/passwd` → заблокировано ДО сетевого обращения; публичный хост — проходит.
 
 ## S5. Supply-chain
-Lockfile committed; новые зависимости — ревью человека; base-образы по digest.
-**Eval:** `govulncheck`/OWASP Dependency-Check/`pip-audit` (нет CVE выше порога); SBOM (`syft`); диф lockfile в PR → аппрув.
+Lockfile committed (пиннинг с хэшами, `--require-hashes`); новые зависимости — ревью человека; base-образы по digest.
+**Eval:** аудит зависимостей `govulncheck`/OWASP Dependency-Check/`pip-audit` (нет CVE выше порога) **плюс SAST по своему коду** (Python `bandit`, Go `gosec`, `<ВАШ_СТЕК>` — статический анализатор безопасности) — аудит либ и SAST дополняют друг друга; SBOM (`syft`); диф lockfile в PR → аппрув.
 
 ## S6. Prompt injection (когда агент/продукт с tool-use читает недоверенный текст)
 Недоверенный текст (письмо/тикет/страница) = ДАННЫЕ, не команды. Три рычага: **изолируй** контент (жёсткие границы `<<<UNTRUSTED>>>`), **сузь выход** (structured output под JSON Schema), **allowlist инструментов** (опасные тулы недоступны на пути обработки чужого текста; сайд-эффекты — через human-in-the-loop).

@@ -63,7 +63,7 @@
 **Per-язык идиома:**
 - **Go:** флаг `envconfig`/`viper` в `context.Context`-пропагации; gate через `go test -run '@regression @incident-<ID>'` + `go-mutesting`; rollback — `env FLAG=false go test`.
 - **`<ВАШ_СТЕК>`:** feature-flag/конфиг + resilience-библиотека; gate через тег-фильтр + mutation-инструмент под ваш язык (подставь идиомы своего стека или удали строку из профиля).
-- **Python:** `pydantic-settings`/`dynaconf` + `anyio` taskgroup; gate `pytest -m regression_incident_<ID>` + `mutmut`; rollback `FEATURE_FLAG=false pytest`.
+- _(конкретику под язык — feature-flag/конфиг + `<ТЕСТ_РАННЕР>`/`<МУТАЦИИ>` — материализует совет; профиль-пример Python в §11.1)_
 
 🎬 **Что ломается без скила:**
 - Агент «по аналогии» генерит 800-строчный дифф с попутным рефактором → откат невозможен, при rollback теряется и баг, и чужой фикс (П5 ломается).

@@ -21,6 +21,13 @@
 Для каждого внешнего вызова обязательны: timeout, retry (exp backoff + jitter, ≤3), idempotency-key на мутациях, circuit breaker, bounded queue/backpressure.
 Для каждой мутации с побочным эффектом обязательны: input validation, authz/authn check, parameterized queries, secret/env-only.
 Каждый коммит агента должен содержать: версию спеки, промпт, seed, результаты eval.
+Git-workflow (agents/vcs.md, обязателен):
+- Работа ТОЛЬКО в ветке `feat/<TICKET>-<slug>`; прямой коммит/push в `<DEFAULT_BRANCH>` запрещён (protected).
+- Каждый коммит — Conventional Commit с тегом вклада: `[agent|assisted|manual] feat(<scope>): <subject>`; коммиты атомарны (репозиторий собирается и тесты зелёные на каждом).
+- Смена контракта — ОТДЕЛЬНЫМ коммитом со спекой раньше кода; спека+код+рефактор в одном коммите запрещены.
+- Слияние только через PR: один PR = одна фича, diff ≤ `vcs.pr_max_lines`, шаблон заполнен, ≥1 аппрув, автор себя не мёржит, merge лишь на зелёном CI + пройденном review-скиле.
+- `--no-verify`/`SKIP=` (обход хуков) запрещены; тронул зависимости → пересобрал lock с хэшами тем же PR.
+Dev-стандарт (skills/standard.md, сквозная полоса): типизированный публичный контракт, доменные ошибки, структурные логи с correlation-id, конфиг/секреты из env — держатся на каждой фиче.
 ```
 
 **Шаги (что делает агент):**
@@ -76,7 +83,7 @@ CI-гейт `make eval-feature` (bash/Makefile) обязателен до merge:
 
 - **Go:** `context.WithTimeout`/`http.Client.Timeout` + `sony/gobreaker` + property-based `gopter` + `-race` + `stretchr/testify`.
 - **`<ВАШ_СТЕК>`:** таймаут/retry/circuit-breaker + property-тесты + mutation + p99-гейт под ваш язык (подставь идиомы своего стека или удали строку из профиля).
-- **Python:** `anyio`/`asyncio` timeouts + `tenacity` (exp backoff + jitter) + `hypothesis` property-based + `pybreaker` + `pytest-asyncio`.
+- _(конкретику под язык — `<TIMEOUT>`/`<RETRY_LIB>`/`<CB_LIB>`/`<PROPERTY>`/`<ТЕСТ_РАННЕР>` — материализует совет; профиль-пример Python в §11.1)_
 
 🎬 **Что ломается без скила:**
 

@@ -33,7 +33,7 @@
 **Per-язык идиома:**
 - **Go:** `go test` (table-driven) + `-race` + property `gopter`/`rapid` + mutation `go-mutesting`/`gremlins`.
 - **`<ВАШ_СТЕК>`:** тест-раннер + property + mutation-инструмент + контейнеры для интеграции под ваш язык (подставь идиомы своего стека или удали строку из профиля).
-- **Python:** `pytest`(-asyncio) + `hypothesis` (property) + `mutmut` (mutation) + testcontainers.
+- _(конкретику под язык — `<ТЕСТ_РАННЕР>`/`<PROPERTY>`/`<МУТАЦИИ>` — материализует совет; профиль-пример Python в §11.1)_
 
 🎬 **Что ломается без скила:**
 Агент выдаёт 100% coverage на unit с `assert True`, integration нет — в проде не проходит оплата; рефактор теряет `commit`, unit зелёные, e2e ловит; mutation не гоняется → тесты не ловят возвращённый баг. Coverage 90% на bullshit = доверие 0%.

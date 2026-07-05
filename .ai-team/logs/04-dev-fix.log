@@ -1,0 +1,4 @@
+Все гейты зелёные. Запишу handoff.
+Готово. Применил минимальный фикс из review: добавил `ajv.customOptions` (`coerceTypes: false`, `removeAdditional: false`, `useDefaults: false`) в `qrsvc-nodejs/src/app.ts:5`. Gate зелёный: `Tests 45 passed (45)`, lint, typecheck OK. Handoff записан в `.ai-team/handoff/04-dev-fix.md`.
+
+RESULT: DONE

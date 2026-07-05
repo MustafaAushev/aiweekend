@@ -13,7 +13,7 @@ LOG_DIR="$WORK_DIR/logs"
 VERDICT_DIR="$WORK_DIR/verdicts"
 
 TEAM_MODEL="${TEAM_MODEL:-devhands/z-ai/glm-5.2}"
-COUNCIL_MODELS="${COUNCIL_MODELS:-devhands/deepseek/deepseek-v4-pro devhands/z-ai/glm-5.2 devhands/moonshotai/kimi-k2.7-code}"
+COUNCIL_MODELS="${COUNCIL_MODELS:-devhands/deepseek/deepseek-v4-flash devhands/z-ai/glm-5.2 devhands/deepseek/deepseek-v4-pro}"
 DRY_RUN="${TEAM_DRY_RUN:-0}"
 
 mkdir -p "$PROMPT_DIR" "$HANDOFF_DIR" "$LOG_DIR" "$VERDICT_DIR"
@@ -53,6 +53,11 @@ run_model() {
   local prompt_file="$2"
   local out_file="$3"
   local log_file="$4"
+  local slug="${model//\//_}"
+  local oc_data="$WORK_DIR/opencode-data/$slug"
+  local oc_state="$WORK_DIR/opencode-state/$slug"
+  local oc_cache="$WORK_DIR/opencode-cache/$slug"
+  mkdir -p "$oc_data" "$oc_state" "$oc_cache"
 
   if [ "$DRY_RUN" = "1" ]; then
     {
@@ -63,6 +68,9 @@ run_model() {
     return 0
   fi
 
+  XDG_DATA_HOME="$oc_data" \
+  XDG_STATE_HOME="$oc_state" \
+  XDG_CACHE_HOME="$oc_cache" \
   opencode run --model "$model" --dir "$ROOT" "$(cat "$prompt_file")" < /dev/null | tee "$out_file" > "$log_file"
 }
 

@@ -1,0 +1,58 @@
+diff --git a/qrsvc-nodejs/api/openapi.yaml b/qrsvc-nodejs/api/openapi.yaml
+index 1fbf12f..078acec 100644
+--- a/qrsvc-nodejs/api/openapi.yaml
++++ b/qrsvc-nodejs/api/openapi.yaml
+@@ -16,6 +16,7 @@ paths:
+                 data: {type: string, minLength: 1, maxLength: 2953}
+                 error_correction: {type: string, enum: [L, M, Q, H], default: M}
+                 border: {type: integer, minimum: 0, maximum: 40, default: 4}
++                label: {type: string, maxLength: 64, description: "Optional human-readable label; returned only when provided"}
+       responses:
+         "201":
+           description: QR created
+@@ -31,5 +32,6 @@ paths:
+                   qr_size: {type: integer}
+                   image_url: {type: string}
+                   border: {type: integer}
++                  label: {type: string, maxLength: 64, description: "Returned only when provided in request"}
+         "422":
+           description: Payload does not fit selected version/EC level
+diff --git a/qrsvc-nodejs/src/app.ts b/qrsvc-nodejs/src/app.ts
+index 1709bad..cd5c915 100644
+--- a/qrsvc-nodejs/src/app.ts
++++ b/qrsvc-nodejs/src/app.ts
+@@ -19,25 +19,31 @@ function buildServer() {
+             data: { type: 'string', minLength: 1, maxLength: 2953 },
+             error_correction: { type: 'string', enum: ['L', 'M', 'Q', 'H'], default: 'M' },
+             border: { type: 'integer', minimum: 0, maximum: 40, default: 4 },
++            label: { type: 'string', maxLength: 64 },
+           },
+         },
+       },
+     },
+     async (request, reply) => {
+-      const body = request.body as { data: string; error_correction?: string; border?: number }
++      const body = request.body as { data: string; error_correction?: string; border?: number; label?: string }
+       const ec = (body.error_correction ?? 'M') as ErrorCorrection
+       const border = body.border ?? 4
++      const hasLabel = Object.prototype.hasOwnProperty.call(body, 'label')
+       const result = selectVersion(body.data.length, ec)
+       if (!result) {
+         return reply.status(422).send({ error: 'Data does not fit at the selected error correction level' })
+       }
+-      return reply.status(201).send({
++      const response: Record<string, unknown> = {
+         qr_id: randomUUID(),
+         error_correction: ec,
+         qr_size: result.qr_size,
+         image_url: `https://placeholder.qr/static/${result.version}`,
+         border,
+-      })
++      }
++      if (hasLabel) {
++        response.label = body.label
++      }
++      return reply.status(201).send(response)
+     },
+   )
+ 

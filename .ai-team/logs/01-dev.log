@@ -1,0 +1,16 @@
+Приступаю к выполнению рабочего процесса: сначала спецификация, затем падающий тест, затем реализация, затем проверка (gate).
+
+**Шаг 1: Обновление спецификации (openapi.yaml)**
+**Шаг 2: Падающий контрактный тест для `label`**
+Запускаю, чтобы убедиться, что новый тест падает (защелка):
+**Шаг 3: Реализация**
+**Шаг 4: Запуск gate (lint + typecheck + tests)**
+Все проверки пройдены: lint, typecheck, 33/33 тестов успешны. Пишу handoff.
+Готово.
+
+RESULT: DONE
+FILES: api/openapi.yaml, src/app.ts, tests/contract/label.test.ts
+TESTS: +5 contract cases (provide/omit/64-ok/65→400/empty-ok); full suite 33 passed; gate: typecheck + lint OK
+RISKS: пустая строка трактуется как заданное значение (зафиксировано тестом); property-based/mutation/perf-гейты не запускались (tooling отсутствует в проекте)
+
+Детали и handoff — `.ai-team/handoff/01-dev.md`.

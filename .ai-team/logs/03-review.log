@@ -1,0 +1,9 @@
+Теперь запущу тесты, typecheck и lint для верификации фактического состояния (не доверяю handoff'ам):
+Верификация подтверждает находки TESTER: 5 тестов красные, lint/typecheck зелёные. Пишу итог ревью.
+Готово. Итог записан в `/Users/mus/workshops/aiweekend/.ai-team/handoff/03-review.md`.
+
+**VERDICT: DO_NOT_MERGE** — RED FLAG по контракту.
+
+Ключевая находка: `src/app.ts:6` использует `Fastify({ logger: false })` без явного `ajv.customOptions`, и дефолты ajv (`coerceTypes`, `removeAdditional`, `useDefaults`) обходят `additionalProperties:false` и `type:string` из собственной схемы и OpenAPI-спеки. Фактически подтверждено прогоном `npx vitest run`: **5 failed / 40 passed (45)** — `tests/contract/label-negative.test.ts` красный (`label: 42→"42"`, `label: null→""`, `extra`-поле вырезано вместо 400). Lint и typecheck зелёные.
+
+Вердикт DEV «33/33 passed» относился к срезу до тестов TESTER'а; вердикт TESTER «5 дефектов» подтверждён по файлам. Минимальный фикс у DEV: `ajv: { customOptions: { coerceTypes: false, removeAdditional: false, useDefaults: false } }` — после него 5 красных тестов станут зелёными без правки тестов (failing-first → green). Остальные 7 блоков (П2, П3-добор, П6, security, concurrency, observability, audit) — PASS или N/A вне дельты; по 2 tech-debt-замечания (нет `400`-ответа в спеке, `logger:false`) отмечены как pre-existing и не блокирующие.

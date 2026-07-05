@@ -13,7 +13,7 @@
 
 ## Пул (3 разных семейства) и как физически позвать модель
 Совет = **3 модели трёх РАЗНЫХ семейств** (не три копии одной: у копий общие слепые пятна
-и мягкий self-судья). Дефолт воркшопа: `deepseek/deepseek-v4-pro` · `z-ai/glm-5.2` ·
+и мягкий self-судья). Дефолт воркшопа: `deepseek/deepseek-v4-flash` · `z-ai/glm-5.2` ·
 `moonshotai/kimi-k2.7-code`.
 
 Каждого судью/креативщика зовёшь САМ, отдельным изолированным HTTP-вызовом к шлюзу
@@ -22,7 +22,7 @@
 ```bash
 curl -s --max-time 600 "$OPENAI_BASE_URL/chat/completions" \
   -H "Authorization: Bearer $OPENAI_API_KEY" -H "Content-Type: application/json" \
-  -d '{"model":"deepseek/deepseek-v4-pro","stream":false,
+  -d '{"model":"deepseek/deepseek-v4-flash","stream":false,
        "provider":{"order":["baidu","together"],"allow_fallbacks":true},
        "messages":[{"role":"system","content":"<промпт роли>"},
                    {"role":"user","content":"<артефакт + факт-карта + критерии + формат VERDICT=>"}]}'

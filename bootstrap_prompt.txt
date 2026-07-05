@@ -1,0 +1,12 @@
+Настрой рабочее место И разложи harness воркшопа на этой машине, всё сохрани на диск.
+Сначала определи ОС (uname; в WSL2 действуй как на Linux). Действуй по шагам,
+после каждого — проверка; команда упала — покажи её вывод и остановись:
+1) РАЗЛОЖИ HARNESS на диск из ~/workshops/aiweekend/workshop.md (скачан в шаге 4). Ты ничего
+   НЕ генеришь — только СОХРАНЯЕШЬ готовые heredoc-блоки, что уже лежат в файле:
+   - найди все блоки одним проходом:
+       grep -n "^cat > .*harness/.*<<'HARNESS_EOF_Z9'\|^HARNESS_EOF_Z9$" ~/workshops/aiweekend/workshop.md
+   - каждая пара «строка cat > …harness/… <<'HARNESS_EOF_Z9'» → следующая строarness/» в пути (это *_prompt.txt, opencode run,
+     api/openapi.yaml, файлы батла — работа человека). Ничего не запускай (ни make, ни evals).
+Ничего, кроме перечисленного, не ставь; чужие конфиги не правь.
+Когда всё готово — напиши «БУТСТРАП ГОТОВ», повтори сводку версий (шаг 5) и добавь счётчики harness:
+   echo "$(ls ~/workshops/aiweekend/harness/agents/*.md 2>/dev/null|wc -l) правил / $(ls ~/workshops/aiweekend/harness/skills/*.md 2>/dev/null|wc -l) скилов / $(ls ~/workshops/aiweekend/harness/*.yaml 2>/dev/null|wc -l) порогов / $(ls ~/workshops/aiweekend/harness/evals/ 2>/dev/null|wc -l) evals"  # ждём 11 / 9 / 2 / 5

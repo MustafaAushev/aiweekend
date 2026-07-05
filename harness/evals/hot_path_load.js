@@ -18,7 +18,7 @@ export const options = {
 };
 
 export default function () {
-  const res = http.get('http://localhost:8080/api/hot', { tags: { path: 'hot' } });
+  const res = http.get('http://localhost:3000/api/hot', { tags: { path: 'hot' } });
   check(res, { 'status 200': (r) => r.status === 200 });
 }
 

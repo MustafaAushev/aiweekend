@@ -1,0 +1,25 @@
+# qrsvc-nodejs/harness/fix_loop.yaml — ограничители авто-починки (см. agents/fix-loop.md)
+fix_loop:
+  max_iterations: 5
+  wall_clock_s:   600
+  cost_budget_usd: 2.00
+
+  immutable_paths:
+    - "qrsvc-nodejs/harness/**"
+    - "qrsvc-nodejs/harness/agents/**"
+    - "qrsvc-nodejs/harness/evals/**"
+    - "**/thresholds.yaml"
+    - "**/*.schema.json"
+
+  tests_glob:
+    - "**/*.spec.*"
+    - "**/*.test.*"
+    - "**/tests/**"
+  tests_policy: create_new_ok__modify_existing_forbidden
+
+  invariants:
+    - green_count_non_decreasing
+    - coverage_hot_paths_non_decreasing
+    - mutation_score_non_decreasing
+    - no_new_skips_or_xfails
+  on_exhausted: escalate_to_human

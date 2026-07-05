@@ -1,0 +1,19 @@
+{
+  "skills": {
+    "feature.md": { "path": "harness/skills/feature.md" },
+    "tests.md": { "path": "harness/skills/tests.md" },
+    "review.md": { "path": "harness/skills/review.md" },
+    "bugfix.md": { "path": "harness/skills/bugfix.md" },
+    "standard.md": { "path": "harness/skills/standard.md" },
+    "database.md": { "path": "harness/skills/database.md" }
+  },
+  "agents": {
+    "resilience": { "path": "harness/agents/resilience.md" },
+    "contracts": { "path": "harness/agents/contracts.md" },
+    "test-matrix": { "path": "harness/agents/test-matrix.md" },
+    "performance": { "path": "harness/agents/performance.md" },
+    "vcs": { "path": "harness/agents/vcs.md" },
+    "incident-log": { "path": "harness/agents/incident-log.md" },
+    "fix-loop": { "path": "harness/agents/fix-loop.md" }
+  }
+}

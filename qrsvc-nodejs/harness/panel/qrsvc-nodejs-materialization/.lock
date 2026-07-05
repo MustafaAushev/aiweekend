@@ -1,0 +1,4 @@
+# panel lock — qrsvc-nodejs-materialization
+date: 2026-07-05
+session: orchestrator-r1
+goal: materialize harness under L1=nodejs (6 skills + 5 rules + Makefile)

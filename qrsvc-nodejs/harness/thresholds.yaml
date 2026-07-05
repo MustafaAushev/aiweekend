@@ -1,0 +1,28 @@
+# qrsvc-nodejs/harness/thresholds.yaml — пороги, адаптированные под Node.js 24 + Prisma + Fastify
+# Все правила agents/*.md читают пороги ОТСЮДА. Менять — через PR (человек владеет).
+
+resilience:
+  timeout_ms:      { default: 5000, prisma: 3000, llm: 30000 }
+  retry_max:       { default: 3, idempotent: 3, non_idempotent: 1 }
+  cb_fail_ratio:   { default: 0.5, window_s: 10, open_s: 30 }
+  cb_timeout_ms:   { default: 6000 }
+
+performance:
+  hot_p99_ms:      { default: 200, prod: 100 }
+  p50_ms:          { default: 50 }
+  max_payload_kb:  { default: 100 }
+  max_batch:       { default: 100 }
+  db_conn_limit:   { default: 10 }
+  sql_max_per_req: { default: 5 }
+  asymptote_slope_max: { default: 1.1 }
+  llm_cost_usd_per_run: { default: 0.50 }
+  event_loop_lag_warn_ms: { default: 50 }
+  fastify_body_limit_bytes: { default: 1048576 }
+
+quality:
+  mutation_score:  { default: 0.80 }
+  flaky_max_rate:  { default: 0.05 }
+
+llm:
+  max_output_tokens: { default: 1024 }
+  cost_budget_usd:   { default: 5.00 }

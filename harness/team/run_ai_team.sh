@@ -1,4 +1,3 @@
-cat > ~/workshops/aiweekend/harness/team/run_ai_team.sh <<'HARNESS_EOF_Z9'
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -278,4 +277,3 @@ case "${1:-}" in
     exit 1
     ;;
 esac
-HARNESS_EOF_Z9
